@@ -14,7 +14,9 @@ if api_key is None:
 def main():
     parser = argparse.ArgumentParser(description="secret agent for coding")
     parser.add_argument("user_prompt", type=str, help="Prompt given by user")
+    parser.add_argument("--verbose", action="store_true", help="Enable verbose output")
     args = parser.parse_args()
+    #  generate message
     client = genai.Client(api_key=api_key)
 
     messages = [types.Content(role="user", parts=[types.Part(text=args.user_prompt)])]
@@ -22,19 +24,16 @@ def main():
         model="gemini-2.5-flash",
         contents=messages,
     )
-    # messages = [
-    #     types.Content(role="user", parts=[types.Part(text=prompt)]),
-    # ]
 
     print(response.text)
     promt_tokens, usage_tokens = (
         response.usage_metadata.prompt_token_count,
         response.usage_metadata.candidates_token_count,
     )
-    # if verbose:
-    print(
-        f"User prompt: {args.user_prompt}\nPrompt tokens: {promt_tokens}\nResponse tokens: {usage_tokens}"
-    )
+    if args.verbose:
+        print(
+            f"User prompt: {args.user_prompt}\nPrompt tokens: {promt_tokens}\nResponse tokens: {usage_tokens}"
+        )
 
 
 if __name__ == "__main__":
