@@ -5,6 +5,7 @@ from google import genai
 from google.genai import types
 import argparse
 from prompts import system_prompt
+from functions.call_function import available_functions
 
 load_dotenv()
 api_key = os.environ.get("GEMINI_API_KEY")
@@ -24,10 +25,16 @@ def main():
     response = client.models.generate_content(
         model="gemini-2.5-flash",
         contents=messages,
-        config=types.GenerateContentConfig(system_instruction=system_prompt),
+        config=types.GenerateContentConfig(
+            system_instruction=system_prompt, tools=[available_functions]
+        ),
     )
 
     print(response.text)
+    if response.function_calls:
+        for function in response.function_calls:
+            print(f"Calling function: {function.name}({function.args})")
+
     promt_tokens, usage_tokens = (
         response.usage_metadata.prompt_token_count,
         response.usage_metadata.candidates_token_count,
